@@ -1,0 +1,68 @@
+# docker-compose.yml — starting scaffold for SIH.git
+#
+# STATUS: not verified against the live repo. This session has no network
+# access to GitHub, so none of this has been checked against what Agents
+# 1-4 actually built. Grounded in confirmed facts only:
+#   backend  = Python 3.12, FastAPI + uvicorn, SQLAlchemy 2.x, Pydantic v2
+#              (Postgres/Neon in prod, SQLite locally)
+#   frontend = Vite + React 18 + TypeScript
+#
+# Every TODO below needs a quick check against backend/.env.example
+# (Agent 2) and the frontend's API client config (Agent 3) before this
+# will actually boot. Full checklist in AGENT5_RUNBOOK.md.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sih_user
+      POSTGRES_PASSWORD: sih_pass
+      POSTGRES_DB: sih_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - sih_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sih_user -d sih_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile        # TODO: confirm Agent 2 put it here
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env              # copy from backend/.env.example first
+    environment:
+      # TODO: confirm this is the actual variable name the app's config
+      # module reads — assumes a standard SQLAlchemy connection string
+      DATABASE_URL: postgresql+psycopg2://sih_user:sih_pass@db:5432/sih_db
+      # TODO: confirm the CORS var name Agent 2/4 settled on
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    # TODO: confirm the module path is actually app.main — inferred from
+    # the app/db, app/api, app/reports package layout used in earlier rounds
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile        # TODO: confirm Agent 3 put it here
+      args:
+        # TODO: confirm the env var name Agent 3 wired the API client to
+        VITE_API_BASE_URL: http://localhost:8000
+    restart: unless-stopped
+    ports:
+      - "5173:4173"                 # 4173 = vite preview's default port
+    depends_on:
+      - backend
+
+volumes:
+  sih_pgdata:
