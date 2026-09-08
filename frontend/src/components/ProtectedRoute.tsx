@@ -1,43 +1,50 @@
-/**
- * Intended path: frontend/src/components/ProtectedRoute.tsx
- *
- * Route guard for react-router-dom v6 (task 3). Usage:
- *
- *   <Route element={<ProtectedRoute />}>
- *     <Route path="/dashboard" element={<Dashboard />} />
- *   </Route>
- *
- *   <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
- *     <Route path="/admin" element={<AdminPage />} />
- *   </Route>
- *
- * IMPORTANT: this is a UX guard, not a security boundary — the backend
- * must enforce the same role checks server-side (see
- * SECURITY_CHECKLIST.md, item 4). Anyone can edit the JS running in
- * their own browser.
- */
+import { useEffect, type ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "@/contexts/AuthContext";
+import { ROUTES } from "@/lib/routes";
+import type { UserRole } from "@/types/api";
 
 interface ProtectedRouteProps {
-  allowedRoles?: string[];
+  // Omitted => any logged-in user, regardless of role.
+  roles?: UserRole[];
+  children: ReactNode;
 }
 
-export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, hasRole } = useAuth();
+// <ProtectedRoute roles={["admin", "doctor"]}><SomePage /></ProtectedRoute>
+export function ProtectedRoute({ roles, children }: ProtectedRouteProps) {
+  const { user, isLoading } = useAuth();
   const location = useLocation();
+  const hasWrongRole = Boolean(user) && Boolean(roles) && !roles?.includes(user!.role);
 
-  if (isLoading) return null; // swap in the design system's existing loading/spinner state
+  useEffect(() => {
+    if (hasWrongRole) {
+      toast.error("You don't have access to that page.");
+    }
+  }, [hasWrongRole]);
 
-  if (!isAuthenticated) {
-    const next = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`/login?next=${next}`} replace />;
+  if (isLoading) {
+    return (
+      <div
+        className="flex min-h-[50vh] items-center justify-center"
+        role="status"
+        aria-live="polite"
+      >
+        <span className="text-sm text-muted-foreground">Loading, one moment.</span>
+      </div>
+    );
   }
 
-  if (allowedRoles && !hasRole(...allowedRoles)) {
-    return <Navigate to="/" replace />; // wrong role — safe default, not a dead end
+  if (!user) {
+    // Preserve the intended destination so LoginPage can send the user back
+    // here after a successful login.
+    return <Navigate to={ROUTES.login} state={{ from: location }} replace />;
   }
 
-  return <Outlet />;
+  if (hasWrongRole) {
+    return <Navigate to={ROUTES.home} replace />;
+  }
+
+  return <>{children}</>;
 }
