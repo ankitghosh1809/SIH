@@ -2,6 +2,8 @@
 
 > A retinal-image **screening and clinical decision-support** application for diabetic retinopathy and cataract risk. Built for Smart India Hackathon 2026.
 
+**Live deployment:** [sih-psi-nine.vercel.app](https://sih-psi-nine.vercel.app/)
+
 **Important:** this project is a prototype screening aid. It is not a medical device, does not provide a diagnosis, and must not replace evaluation by a qualified clinician.
 
 ## What it does
