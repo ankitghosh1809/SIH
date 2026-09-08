@@ -6,9 +6,19 @@ import { handleApiError } from "./errorHandler";
 // on every request.
 export const TOKEN_STORAGE_KEY = "sih_token";
 
+// In the Vercel deployment the FastAPI function is rewritten under this same
+// origin, so a relative base URL avoids a separate backend host and CORS
+// configuration.  Keeping a non-placeholder override makes local development
+// and an intentionally separate API deployment possible too.
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
+const apiBaseUrl =
+  configuredApiBaseUrl === "https://your-backend.vercel.app"
+    ? ""
+    : configuredApiBaseUrl || "";
+
 // Exported shape every other agent imports.
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: apiBaseUrl,
   headers: {
     "Content-Type": "application/json",
   },
