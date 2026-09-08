@@ -1,15 +1,14 @@
-# docker-compose.yml — starting scaffold for SIH.git
+# docker-compose.yml — SIH.git local dev stack
 #
-# STATUS: not verified against the live repo. This session has no network
-# access to GitHub, so none of this has been checked against what Agents
-# 1-4 actually built. Grounded in confirmed facts only:
-#   backend  = Python 3.12, FastAPI + uvicorn, SQLAlchemy 2.x, Pydantic v2
+# STATUS: checked against the real backend/frontend (Agent 1, integration
+# scaffold pass) - env var names, Dockerfile locations, and the module
+# path below are all confirmed, not inferred. Not yet run against an
+# actual Docker daemon (still not available in that sandbox either) -
+# if `docker compose up --build` surfaces anything, it's a first for
+# this file.
+#   backend  = Python 3.11, FastAPI + uvicorn, SQLAlchemy, Pydantic
 #              (Postgres/Neon in prod, SQLite locally)
 #   frontend = Vite + React 18 + TypeScript
-#
-# Every TODO below needs a quick check against backend/.env.example
-# (Agent 2) and the frontend's API client config (Agent 3) before this
-# will actually boot. Full checklist in AGENT5_RUNBOOK.md.
 
 services:
   db:
@@ -32,31 +31,31 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile        # TODO: confirm Agent 2 put it here
+      dockerfile: Dockerfile        # confirmed: backend/Dockerfile already existed in SIH_backend
     restart: unless-stopped
     env_file:
       - ./backend/.env              # copy from backend/.env.example first
     environment:
-      # TODO: confirm this is the actual variable name the app's config
-      # module reads — assumes a standard SQLAlchemy connection string
+      # Confirmed against app/config.py:
       DATABASE_URL: postgresql+psycopg2://sih_user:sih_pass@db:5432/sih_db
-      # TODO: confirm the CORS var name Agent 2/4 settled on
-      CORS_ORIGINS: http://localhost:5173
+      # Confirmed: the real var is ALLOWED_ORIGINS (comma-separated), not
+      # CORS_ORIGINS - and the frontend below is actually served on 5173,
+      # not 5173's container-internal 4173.
+      ALLOWED_ORIGINS: http://localhost:5173
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    # TODO: confirm the module path is actually app.main — inferred from
-    # the app/db, app/api, app/reports package layout used in earlier rounds
+    # Confirmed: app/main.py really does expose `app` from app.main.
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile        # TODO: confirm Agent 3 put it here
+      dockerfile: Dockerfile        # added - see AGENT5_RUNBOOK.md's own fallback, nothing else existed
       args:
-        # TODO: confirm the env var name Agent 3 wired the API client to
+        # Confirmed: frontend/.env.example already used this exact name.
         VITE_API_BASE_URL: http://localhost:8000
     restart: unless-stopped
     ports:

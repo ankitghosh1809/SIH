@@ -107,8 +107,8 @@ export default function NotificationsPage() {
           {unreadCount > 0 && <Badge className="bg-blue-600 text-white">{unreadCount} unread</Badge>}
         </div>
         <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-neutral-600">
-            <Switch checked={unreadOnly} onCheckedChange={setUnreadOnly} />
+          <label htmlFor="unread-only-toggle" className="flex items-center gap-2 text-sm text-neutral-600">
+            <Switch id="unread-only-toggle" checked={unreadOnly} onCheckedChange={setUnreadOnly} />
             Unread only
           </label>
           <Button variant="outline" size="sm" onClick={handleMarkAllRead} disabled={unreadCount === 0 || markRead.isPending}>

@@ -112,7 +112,6 @@ export default function NewPatientPage() {
               <Label htmlFor="full_name">Full name</Label>
               <Input
                 id="full_name"
-                autoFocus
                 {...register("full_name")}
                 aria-invalid={Boolean(errors.full_name)}
               />
