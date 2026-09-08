@@ -1,4 +1,0 @@
-# Vercel installs Python dependencies from the repository root.  Keep the
-# canonical dependency list with the backend source so local/Docker and Vercel
-# deploys cannot drift.
--r backend/requirements.txt

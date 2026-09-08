@@ -79,11 +79,10 @@ Serves on `http://localhost:3000` (Vite's default), matching the backend's defau
 
 ## Deploying the complete app to Vercel
 
-The repository root is configured for a single Vercel project: the React build
-is served as the static site and the FastAPI application is served as the
-`/api/*` function.  No `VITE_API_BASE_URL` is needed in Vercel — the frontend
-uses its own origin, so registration requests go to
-`/api/v1/auth/register` in the same deployment.
+The repository root is configured as one Vercel Services project: the React
+site is served at `/` and the FastAPI service is mounted at `/api`. No
+`VITE_API_BASE_URL` is needed in Vercel — the frontend uses its own origin, so
+registration requests go to `/api/v1/auth/register` in the same deployment.
 
 Before the first production deployment, add these Vercel environment variables:
 
