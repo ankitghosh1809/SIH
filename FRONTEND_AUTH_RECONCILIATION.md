@@ -1,4 +1,4 @@
-# Reconciling with Agent 4 (auth-security) — addendum to SUMMARY_agent-int-3.md
+# Frontend authentication reconciliation — addendum to FRONTEND_INTEGRATION_SUMMARY.md
 
 By the time this branch got merged into `main`, Agents 4 and 5 had also run
 for real and pushed. Agent 4 built its own parallel auth stack

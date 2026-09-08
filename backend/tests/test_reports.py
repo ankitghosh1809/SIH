@@ -12,7 +12,7 @@ import os
 import sys
 
 # Make `app` importable regardless of the current working directory pytest is
-# invoked from (matches tests/test_agent_d.py).
+# invoked from (matches tests/test_health_metrics_cors.py).
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from fastapi.testclient import TestClient

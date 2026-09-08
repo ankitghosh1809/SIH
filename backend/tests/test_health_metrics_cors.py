@@ -7,7 +7,7 @@ C's real app/api/scans.py is mounted, that coverage lives in
 tests/test_scans_api.py instead — asserting the stub shape here would just be
 testing for the wrong behavior.)
 
-Run from anywhere with:  pytest tests/test_agent_d.py
+Run from anywhere with:  pytest tests/test_health_metrics_cors.py
 (needs `pip install pytest httpx2` in addition to requirements.txt — httpx2
 backs FastAPI's TestClient and isn't needed at runtime, only for this test file.)
 """

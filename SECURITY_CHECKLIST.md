@@ -2,7 +2,7 @@
 
 I couldn't run any of this against the real repos — no network access from
 this chat sandbox, and the repos aren't reachable via web fetch or search
-either (see AGENT4_SUMMARY.md). Everything below is written to be run
+either (see AUTH_SECURITY_INTEGRATION_NOTES.md). Everything below is written to be run
 directly, in order, by whoever has real access next — you, or Claude Code.
 
 ## 1. Committed secrets

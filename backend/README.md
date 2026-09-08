@@ -295,7 +295,7 @@ exception: every agent adds a couple of lines to `app/main.py` to register its r
 trivial, easy-to-resolve conflict, never a logic one.
 
 - **Round 1** (`agent-a-db`, `agent-b-ml`, `agent-c-api`, `agent-d-app`) — database layer, ML
-  integration wrapper, scan API, app shell + deploy config. Work orders: `docs/agent-work-orders/`.
+  integration wrapper, scan API, app shell + deploy config. Work orders: `docs/implementation-work-orders/`.
 - **Round 2** (`agent-e-reports`, `agent-f-batch`, `agent-g-review`, `agent-h-observability`) —
   PDF reports, batch screening, doctor review, admin stats + CI.
 - **Round 3** (`agent-m-auth-security`, `agent-n-patient-registry`, `agent-o-referral-workflow`,

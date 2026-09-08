@@ -53,7 +53,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile        # added - see AGENT5_RUNBOOK.md's own fallback, nothing else existed
+      dockerfile: Dockerfile        # added - see INTEGRATION_RUNBOOK.md's fallback, nothing else existed
       args:
         # Confirmed: frontend/.env.example already used this exact name.
         VITE_API_BASE_URL: http://localhost:8000
