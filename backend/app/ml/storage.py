@@ -1,15 +1,22 @@
+"""Storage for uploaded scans and generated heatmaps.
+
+Vercel functions make the deployed code bundle read-only. Use the writable
+/tmp filesystem there; local development keeps using backend/storage. Files in
+/tmp are ephemeral, so production scan media should ultimately use object storage.
 """
-Disk-backed storage for uploaded scans and their generated heatmaps.
-Local disk under storage/ (already in .gitignore) — no S3/Cloudinary needed for the hackathon.
-"""
+
 import os
 
 _APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _ROOT_DIR = os.path.dirname(_APP_DIR)
-
-STORAGE_ROOT = os.path.join(_ROOT_DIR, "storage")
+_LOCAL_STORAGE_ROOT = os.path.join(_ROOT_DIR, "storage")
+STORAGE_ROOT = os.getenv(
+    "STORAGE_ROOT",
+    "/tmp/sih-storage" if os.getenv("VERCEL") else _LOCAL_STORAGE_ROOT,
+)
 UPLOADS_DIR = os.path.join(STORAGE_ROOT, "uploads")
 HEATMAPS_DIR = os.path.join(STORAGE_ROOT, "heatmaps")
+
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 os.makedirs(HEATMAPS_DIR, exist_ok=True)
 
@@ -37,3 +44,4 @@ def read_heatmap(scan_id: str) -> bytes | None:
         return None
     with open(path, "rb") as f:
         return f.read()
+    
