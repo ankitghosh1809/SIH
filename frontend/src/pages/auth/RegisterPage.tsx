@@ -33,6 +33,7 @@ import { ROUTES } from "@/lib/routes";
 import type { UserRole } from "@/types/api";
 
 const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
+  { value: "patient", label: "Patient" },
   { value: "camp_staff", label: "Camp staff" },
   { value: "doctor", label: "Doctor" },
   { value: "admin", label: "Admin" },
@@ -45,7 +46,7 @@ const registerSchema = z.object({
     .max(50, "Username must be 50 characters or fewer"),
   fullName: z.string().max(120, "Full name must be 120 characters or fewer").optional(),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  role: z.enum(["admin", "doctor", "camp_staff"], {
+  role: z.enum(["admin", "doctor", "camp_staff", "patient"], {
     required_error: "Select a role",
   }),
 });
@@ -76,7 +77,7 @@ export function RegisterPage() {
       });
       // Log the new user straight in rather than sending them to a second
       // form to re-type the credentials they just chose.
-      await login(values.username, values.password);
+      await login(values.username, values.password, values.role);
       navigate(ROUTES.home, { replace: true });
     } catch (error) {
       const message =

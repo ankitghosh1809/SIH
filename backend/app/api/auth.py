@@ -6,7 +6,7 @@ what app/api/review.py and app/api/admin.py now depend on (via
 app.auth.security.require_role) instead of the single shared DOCTOR_API_KEY
 and the previously-open GET /admin/stats.
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -19,7 +19,7 @@ from app.db.database import get_session
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
-VALID_ROLES = {"admin", "doctor", "camp_staff"}
+VALID_ROLES = {"admin", "doctor", "camp_staff", "patient"}
 
 
 def _to_user_response(user: User) -> UserResponse:
@@ -33,7 +33,7 @@ def _to_user_response(user: User) -> UserResponse:
 
 
 # Registration is open to any role for hackathon-demo purposes: anyone can
-# currently create a `doctor` or `admin` account with no invite or approval
+# currently create a `patient`, `doctor`, or `admin` account with no invite or approval
 # step. This is a deliberate scope decision for a short build, same spirit
 # as the DOCTOR_API_KEY docstring this system replaces — restrict this
 # (e.g. admin-invited-only for privileged roles, or a separate admin-only
@@ -69,13 +69,22 @@ def register(payload: UserCreate, db: Session = Depends(get_session)):
 # what makes /docs' built-in "Authorize" button work out of the box — see
 # work order.
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    role: str | None = Form(default=None),
+    db: Session = Depends(get_session),
+):
     user = crud.authenticate_user(db, form_data.username, form_data.password)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    if role is not None and user.role != role:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The selected role does not match this account",
         )
     access_token = create_access_token(data={"sub": user.username})
     return Token(access_token=access_token, token_type="bearer")

@@ -2,7 +2,7 @@
 // work order includes this identical block, so all 7 branches define it identically.
 
 export type RiskLevel = "low" | "medium" | "high";
-export type UserRole = "admin" | "doctor" | "camp_staff";
+export type UserRole = "admin" | "doctor" | "camp_staff" | "patient";
 export type ReferralStatus = "pending" | "contacted" | "completed" | "declined";
 
 export interface PredictionField {

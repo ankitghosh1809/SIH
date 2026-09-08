@@ -21,10 +21,26 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTES } from "@/lib/routes";
+import type { UserRole } from "@/types/api";
+
+const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
+  { value: "patient", label: "Patient" },
+  { value: "camp_staff", label: "Camp staff" },
+  { value: "doctor", label: "Doctor" },
+  { value: "admin", label: "Admin" },
+];
 
 const loginSchema = z.object({
+  role: z.enum(["admin", "doctor", "camp_staff", "patient"]),
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
 });
@@ -42,12 +58,12 @@ export function LoginPage() {
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: "", password: "" },
+    defaultValues: { role: "patient", username: "", password: "" },
   });
 
   async function onSubmit(values: LoginValues) {
     try {
-      await login(values.username, values.password);
+      await login(values.username, values.password, values.role);
       const state = location.state as LocationState | null;
       const destination = state?.from
         ? `${state.from.pathname}${state.from.search}`
@@ -57,6 +73,8 @@ export function LoginPage() {
       const message =
         axios.isAxiosError(error) && error.response?.status === 401
           ? "Incorrect username or password."
+          : axios.isAxiosError(error) && error.response?.status === 403
+            ? "This account does not have the selected role."
           : "Something went wrong. Please try again.";
       form.setError("root", { message });
     }
@@ -76,6 +94,30 @@ export function LoginPage() {
               className="flex flex-col gap-4"
               noValidate
             >
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sign in as</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {ROLE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="username"

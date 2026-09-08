@@ -21,7 +21,7 @@ class User(Base):
     id = Column(String(36), primary_key=True)  # uuid4 as text, same convention as scans.id
     username = Column(String(60), unique=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
-    role = Column(String(20), nullable=False)  # 'admin' | 'doctor' | 'camp_staff'
+    role = Column(String(20), nullable=False)  # 'admin' | 'doctor' | 'camp_staff' | 'patient'
     full_name = Column(String(120), nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())

@@ -13,7 +13,7 @@ from pydantic import BaseModel
 class UserCreate(BaseModel):
     username: str
     password: str
-    role: str  # 'admin' | 'doctor' | 'camp_staff' — validated in app/api/auth.py's
+    role: str  # 'admin' | 'doctor' | 'camp_staff' | 'patient' — validated in app/api/auth.py's
     # /register handler (same manual-check-then-422 style app/api/review.py
     # already uses for override_risk_level), not here, so the 422 error body
     # stays consistent across both endpoints.

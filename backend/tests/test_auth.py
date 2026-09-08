@@ -34,10 +34,13 @@ def _register(username: str, password: str, role: str):
     )
 
 
-def _login(username: str, password: str):
+def _login(username: str, password: str, role: str | None = None):
+    data = {"username": username, "password": password}
+    if role is not None:
+        data["role"] = role
     return client.post(
         "/api/v1/auth/login",
-        data={"username": username, "password": password},
+        data=data,
     )
 
 
@@ -45,7 +48,7 @@ def _token_for(role: str) -> str:
     username = _unique_username(role)
     password = "testpass123"
     assert _register(username, password, role).status_code == 201
-    resp = _login(username, password)
+    resp = _login(username, password, role)
     assert resp.status_code == 200, resp.text
     return resp.json()["access_token"]
 
@@ -89,7 +92,7 @@ def test_register_login_me_round_trip():
     assert "hashed_password" not in body
     assert "password" not in body
 
-    resp = _login(username, password)
+    resp = _login(username, password, "doctor")
     assert resp.status_code == 200, resp.text
     token_body = resp.json()
     assert token_body["token_type"] == "bearer"
@@ -98,6 +101,27 @@ def test_register_login_me_round_trip():
     resp = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200, resp.text
     assert resp.json()["username"] == username
+
+
+def test_patient_can_register_and_log_in():
+    username = _unique_username("patient")
+    password = "testpass123"
+
+    resp = _register(username, password, "patient")
+    assert resp.status_code == 201, resp.text
+    assert resp.json()["role"] == "patient"
+
+    resp = _login(username, password, "patient")
+    assert resp.status_code == 200, resp.text
+
+
+def test_login_rejects_a_mismatched_selected_role():
+    username = _unique_username("doctor")
+    password = "testpass123"
+    assert _register(username, password, "doctor").status_code == 201
+
+    resp = _login(username, password, "patient")
+    assert resp.status_code == 403
 
 
 def test_register_duplicate_username_returns_409():

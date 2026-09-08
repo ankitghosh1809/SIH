@@ -15,7 +15,7 @@ interface AuthContextValue {
   user: UserResponse | null;
   token: string | null;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string, role?: UserResponse["role"]) => Promise<void>;
   register: (payload: UserCreate) => Promise<void>;
   logout: () => void;
 }
@@ -89,10 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (username: string, password: string) => {
+    async (username: string, password: string, role?: UserResponse["role"]) => {
       // The one call in the whole app that is NOT plain JSON: the backend's
       // /auth/login expects OAuth2PasswordRequestForm, i.e. form-encoded.
       const body = new URLSearchParams({ username, password });
+      if (role) body.set("role", role);
       const response = await api.post<Token>("/api/v1/auth/login", body, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
