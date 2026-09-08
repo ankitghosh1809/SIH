@@ -37,7 +37,7 @@ RISK_THRESHOLD_HIGH: float = float(os.getenv("RISK_THRESHOLD_HIGH", "0.7"))
 #   ALLOWED_ORIGINS=https://sih-frontend.vercel.app,http://localhost:3000
 # parsed into a list for FastAPI's CORSMiddleware.
 ALLOWED_ORIGINS: list[str] = _split_origins(
-    os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
+    os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
 )
 
 # --- Agent M additions: JWT auth + rate limiting -----------------------------
