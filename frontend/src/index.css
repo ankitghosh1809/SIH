@@ -63,6 +63,24 @@
      marketing site, so elevation should read as quiet depth, not gloss. */
   --shadow-soft: 0 1px 2px -1px rgb(15 23 42 / 0.06), 0 12px 28px -14px rgb(15 23 42 / 0.12);
   --shadow-soft-lg: 0 2px 4px -2px rgb(15 23 42 / 0.06), 0 24px 48px -20px rgb(15 23 42 / 0.16);
+
+  /* "Ink": a second, deliberate dark surface for the marketing pages and
+     the app's persistent chrome (Header/Sidebar) — used consistently
+     everywhere it appears, never as a single stray dark section on an
+     otherwise light page. Same teal hue family as --primary, recalibrated
+     brighter/more saturated so it still reads clearly on a near-black
+     base; contrast-checked (WCAG AA/AAA) before use, not eyeballed:
+     ink-foreground 16.2:1, ink-muted 7.4:1, ink-accent 9.9:1, all on
+     --ink. Light surfaces (forms, tables, patient data) keep using
+     --primary/--background unchanged — that calibration is still right
+     for the actual clinical work, only the marketing shell changes. */
+  --ink: #0b1420;
+  --ink-foreground: #eaf1ef;
+  --ink-muted: #93a8a5;
+  --ink-border: #1c2733;
+  --ink-accent: #2dd4bf;
+  --ink-accent-bright: #5eead4;
+  --shadow-glow: 0 0 120px -20px rgb(45 212 191 / 0.45);
 }
 
 @theme inline {
@@ -110,6 +128,14 @@
 
   --shadow-soft: var(--shadow-soft);
   --shadow-soft-lg: var(--shadow-soft-lg);
+  --shadow-glow: var(--shadow-glow);
+
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-border: var(--ink-border);
+  --color-ink-accent: var(--ink-accent);
+  --color-ink-accent-bright: var(--ink-accent-bright);
 
   /* Mass-and-spring easing for hover/press motion, used in place of the
      browser's default ease. Only ever paired with transform/opacity/color
@@ -140,5 +166,16 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer utilities {
+  /* Subtle grain over the dark "ink" hero so it reads as a considered
+     surface rather than a flat, textureless fill. Self-contained SVG
+     data URI — no image request, no extra dependency. Applied to an
+     absolutely-positioned overlay div, not the section itself, so it
+     never interferes with the text/content stacking above it. */
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
