@@ -23,7 +23,10 @@ function useVisibleNavItems(navItems: NavItem[]) {
 
 function NavList({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   return (
-    <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3" aria-label="Primary">
+    <nav
+      className="flex flex-1 flex-col gap-1 overflow-y-auto overscroll-contain p-3"
+      aria-label="Primary"
+    >
       {items.map((item) => (
         <NavLink
           key={item.path}

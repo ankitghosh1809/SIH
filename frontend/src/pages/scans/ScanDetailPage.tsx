@@ -1,6 +1,6 @@
 import type { AxiosError } from "axios";
 import { Info } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { RiskBadge } from "@/components/RiskBadge";
 import { ErrorState } from "@/components/ErrorState";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,12 @@ export default function ScanDetailPage() {
 
       <div className="mt-6">
         {scanQuery.isLoading ? (
-          <DetailSkeleton />
+          <>
+            <span className="sr-only" role="status">
+              {"Loading scan details\u2026"}
+            </span>
+            <DetailSkeleton />
+          </>
         ) : scanQuery.isError ? (
           <ErrorState
             title={notFound ? "Scan not found" : "Couldn't load this scan"}
@@ -88,6 +93,26 @@ function ScanDetailContent({
   explainLoading: boolean;
   referral?: ReferralSuggestion;
 }) {
+  // Tab choice lives in the URL so a shared link or a doctor's back button
+  // lands on the same tab, not always back on "Result".
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") === "explainability" ? "explainability" : "result";
+
+  function handleTabChange(value: string) {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value === "explainability") {
+          next.set("tab", "explainability");
+        } else {
+          next.delete("tab");
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -124,7 +149,7 @@ function ScanDetailContent({
         </Card>
       )}
 
-      <Tabs defaultValue="result">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="result">Result</TabsTrigger>
           <TabsTrigger value="explainability">Explainability</TabsTrigger>
@@ -149,11 +174,18 @@ function ScanDetailContent({
               <CardTitle className="text-base">Heatmap</CardTitle>
             </CardHeader>
             <CardContent>
-              <img
-                src={apiUrl(scan.heatmap_url)}
-                alt={`Grad-CAM heatmap for scan ${scan.scan_id}`}
-                className="w-full rounded-[var(--radius)] border border-border"
-              />
+              {/* min-height reserves layout space before the image loads.
+                  We deliberately don't force a fixed aspect-ratio box with
+                  object-cover here: this is a diagnostic Grad-CAM overlay,
+                  and cropping it to a guessed ratio could hide or distort
+                  the region it's highlighting. Natural size, never cropped. */}
+              <div className="min-h-[240px] overflow-hidden rounded-[var(--radius)] border border-border bg-muted sm:min-h-[320px]">
+                <img
+                  src={apiUrl(scan.heatmap_url)}
+                  alt={`Grad-CAM heatmap for scan ${scan.scan_id}`}
+                  className="h-auto w-full"
+                />
+              </div>
               <p className="mt-2 text-xs text-muted-foreground">
                 Model-generated visualization of the regions that most
                 influenced this result, not a raw photo.
@@ -183,13 +215,13 @@ function ScanDetailContent({
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground">DR uncertainty</p>
-                      <p className="font-medium text-foreground">
+                      <p className="font-medium tabular-nums text-foreground">
                         {formatPercent(explain.dr_uncertainty)}
                       </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Cataract uncertainty</p>
-                      <p className="font-medium text-foreground">
+                      <p className="font-medium tabular-nums text-foreground">
                         {formatPercent(explain.cataract_uncertainty)}
                       </p>
                     </div>
@@ -227,11 +259,11 @@ function ConditionRow({ label, field }: { label: string; field: PredictionField 
         </p>
       </div>
       <div className="text-right">
-        <p className="text-sm font-medium text-foreground">
+        <p className="text-sm font-medium tabular-nums text-foreground">
           {formatPercent(field.probability)}
         </p>
         {field.uncertainty != null && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs tabular-nums text-muted-foreground">
             {formatPercent(field.uncertainty)} uncertainty
           </p>
         )}

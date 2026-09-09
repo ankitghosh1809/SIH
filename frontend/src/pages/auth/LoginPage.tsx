@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useForm } from "react-hook-form";
@@ -55,6 +56,16 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Autofocus is genuinely useful here — the username field is the sole
+  // primary input on the page — but only on desktop. On a phone or tablet
+  // (how most health workers will actually load this at a camp) it would
+  // pop the virtual keyboard immediately on page load, which is jarring
+  // rather than helpful.
+  const [autoFocusUsername, setAutoFocusUsername] = useState(false);
+  useEffect(() => {
+    setAutoFocusUsername(window.matchMedia("(pointer: fine)").matches);
+  }, []);
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -125,10 +136,18 @@ export function LoginPage() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      {/* eslint-disable-next-line jsx-a11y/no-autofocus -- the
-                          login form is the sole content of its page, so
-                          autofocus here does not disorient anyone. */}
-                      <Input autoComplete="username" autoFocus {...field} />
+                      {/* Autofocus is gated to fine-pointer (desktop)
+                          devices in autoFocusUsername above, so it never
+                          steals focus and pops the keyboard on mobile. It's
+                          safe here specifically because this field is the
+                          sole content of its page. */}
+                      <Input
+                        autoComplete="username"
+                        spellCheck={false}
+                        // eslint-disable-next-line jsx-a11y/no-autofocus -- see comment above
+                        autoFocus={autoFocusUsername}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -153,7 +172,7 @@ export function LoginPage() {
                 </p>
               ) : null}
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Logging in..." : "Log in"}
+                {form.formState.isSubmitting ? "Logging in\u2026" : "Log in"}
               </Button>
             </form>
           </Form>

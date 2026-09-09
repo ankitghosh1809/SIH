@@ -52,6 +52,22 @@ export default function UploadPage() {
     };
   }, [previewUrl]);
 
+  // A selected image or typed patient name is real work a health worker
+  // could lose to an accidental back-swipe or tab close, often on an
+  // unreliable camp connection. Warn before that happens.
+  useEffect(() => {
+    const hasUnsavedWork = Boolean(file) && status !== "success";
+    if (!hasUnsavedWork) return;
+
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [file, status]);
+
   function handleFilesAccepted(files: File[]) {
     const nextFile = files[0];
     setFileError(null);
@@ -114,8 +130,8 @@ export default function UploadPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">New screening</h1>
-        <p className="mt-1 text-sm text-slate-600">
+        <h1 className="text-2xl font-semibold text-foreground text-balance">New screening</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Upload a retinal fundus photograph to screen for diabetic retinopathy and cataract risk.
           This is a decision-support aid, not a diagnosis. Results should be reviewed by a
           clinician.
@@ -143,11 +159,13 @@ export default function UploadPage() {
                 <img
                   src={previewUrl}
                   alt="Selected fundus photograph preview"
-                  className="h-32 w-32 rounded-md border border-slate-200 object-cover"
+                  className="h-32 w-32 rounded-md border border-border object-cover"
                 />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-700">{file.name}</p>
-                  <p className="text-xs text-slate-500">{(file.size / 1024).toFixed(0)} KB</p>
+                  <p className="text-sm font-medium text-foreground">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {`${(file.size / 1024).toFixed(0)}\u00A0KB`}
+                  </p>
                   <Button
                     type="button"
                     variant="ghost"
@@ -162,7 +180,7 @@ export default function UploadPage() {
               </div>
             )}
             {fileError && (
-              <p role="alert" className="text-sm text-red-700">
+              <p role="alert" className="text-sm text-destructive">
                 {fileError}
               </p>
             )}
@@ -187,7 +205,7 @@ export default function UploadPage() {
                 {...register("patientName")}
               />
               {errors.patientName && (
-                <p role="alert" className="text-sm text-red-700">
+                <p role="alert" className="text-sm text-destructive">
                   {errors.patientName.message}
                 </p>
               )}
@@ -199,23 +217,23 @@ export default function UploadPage() {
         {isBusy && (
           <div className="space-y-2" aria-live="polite">
             <Progress value={status === "processing" ? undefined : progress} />
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted-foreground">
               {status === "processing"
-                ? "Upload complete. Running the screening model, this takes a few seconds."
+                ? "Upload complete. Running the screening model, this takes a few seconds\u2026"
                 : `Uploading, ${announcedProgress}% complete.`}
             </p>
           </div>
         )}
 
         {status === "error" && errorMessage && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-destructive">
             {errorMessage}
           </p>
         )}
 
         <Button type="submit" disabled={isBusy || !file} className="w-full sm:w-auto">
-          {isBusy && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isBusy ? "Uploading..." : "Submit screening"}
+          {isBusy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+          {isBusy ? "Uploading\u2026" : "Submit screening"}
         </Button>
       </form>
     </div>

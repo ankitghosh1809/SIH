@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Plus, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,12 @@ import { ErrorState } from "@/components/ErrorState";
 import { ROUTES } from "@/lib/routes";
 import type { PatientResponse } from "@/types/api";
 import { useDebouncedValue, usePatients } from "./hooks";
+
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 
 const columnHelper = createColumnHelper<PatientResponse>();
 
@@ -54,14 +59,32 @@ const columns = [
   }),
   columnHelper.accessor("created_at", {
     header: "Registered",
-    cell: (info) => format(new Date(info.getValue()), "d MMM yyyy"),
+    cell: (info) => dateFormatter.format(new Date(info.getValue())),
   }),
 ];
 
 export default function PatientListPage() {
-  const [searchInput, setSearchInput] = useState("");
+  // The query lives in the URL (?q=) so a refresh, a shared link, or the
+  // back button lands back on the same search instead of an empty list.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState(() => searchParams.get("q") ?? "");
   const debouncedSearch = useDebouncedValue(searchInput, 350);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (debouncedSearch.trim()) {
+          next.set("q", debouncedSearch);
+        } else {
+          next.delete("q");
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }, [debouncedSearch, setSearchParams]);
 
   const { data: patients, isLoading, isError, refetch } = usePatients(debouncedSearch);
 
@@ -84,18 +107,22 @@ export default function PatientListPage() {
         </div>
         <Button asChild>
           <Link to={ROUTES.newPatient}>
-            <Plus className="mr-1.5 h-4 w-4" />
+            <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
             Add patient
           </Link>
         </Button>
       </div>
 
       <div className="relative max-w-sm">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
         <Input
+          type="search"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search patients by name"
+          placeholder={"Search patients by name\u2026"}
           aria-label="Search patients by name"
           className="pl-9"
         />
@@ -147,8 +174,14 @@ export default function PatientListPage() {
               {table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="cursor-pointer"
+                  tabIndex={0}
+                  aria-label={`View ${row.original.full_name}`}
+                  className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                   onClick={() => navigate(ROUTES.patientDetail(row.original.id))}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter") return;
+                    navigate(ROUTES.patientDetail(row.original.id));
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
