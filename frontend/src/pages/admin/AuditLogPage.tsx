@@ -58,13 +58,13 @@ export default function AuditLogPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-neutral-900">Audit log</h1>
         <Input
           value={actionInput}
           onChange={(e) => setActionInput(e.target.value)}
           placeholder="Filter by action..."
-          className="max-w-xs"
+          className="w-full sm:max-w-xs"
         />
       </div>
 

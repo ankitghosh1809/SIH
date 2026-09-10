@@ -116,14 +116,14 @@ function ScanDetailContent({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Risk level</p>
             <div className="mt-1">
               <RiskBadge level={scan.risk_level} />
             </div>
           </div>
-          <div className="text-right text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground sm:text-right">
             <p>Model {scan.model_version}</p>
             <p>{formatTimestamp(scan.created_at)}</p>
           </div>
