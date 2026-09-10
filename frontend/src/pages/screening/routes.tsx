@@ -4,6 +4,10 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import UploadPage from "./UploadPage";
 import BatchUploadPage from "./BatchUploadPage";
 
+// Batch/camp mode is a health-worker workflow (screening many patients in
+// one sitting) — not something a "patient"-role account should see or use.
+const STAFF_ROLES = ["camp_staff", "doctor", "admin"] as const;
+
 export const screeningRoutes: RouteObject[] = [
   {
     path: ROUTES.upload,
@@ -16,7 +20,7 @@ export const screeningRoutes: RouteObject[] = [
   {
     path: ROUTES.batchUpload,
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute roles={[...STAFF_ROLES]}>
         <BatchUploadPage />
       </ProtectedRoute>
     ),
@@ -25,5 +29,5 @@ export const screeningRoutes: RouteObject[] = [
 
 export const screeningNavItems: NavItem[] = [
   { label: "New Screening", path: ROUTES.upload },
-  { label: "Batch / Camp Mode", path: ROUTES.batchUpload },
+  { label: "Batch / Camp Mode", path: ROUTES.batchUpload, roles: [...STAFF_ROLES] },
 ];

@@ -1,5 +1,4 @@
 import type { RouteObject } from "react-router-dom";
-import { GuestOnlyRoute } from "@/components/GuestOnlyRoute";
 import { ROUTES, type NavItem } from "@/lib/routes";
 import HomePage from "./HomePage";
 import AboutPage from "./AboutPage";
@@ -8,21 +7,14 @@ import NotFoundPage from "./NotFoundPage";
 
 export const marketingRoutes: RouteObject[] = [
   { path: ROUTES.home, element: <HomePage /> },
-  {
-    path: ROUTES.about,
-    element: (
-      <GuestOnlyRoute>
-        <AboutPage />
-      </GuestOnlyRoute>
-    ),
-  },
+  { path: ROUTES.about, element: <AboutPage /> },
   { path: ROUTES.privacy, element: <PrivacyPage /> },
   { path: "*", element: <NotFoundPage /> }, // catch-all — must stay last in App.tsx's route array
 ];
 
-// guestOnly: About is for logged-out visitors; once signed in it disappears
-// from the nav (see Sidebar's useVisibleNavItems) and the route itself
-// redirects home (see GuestOnlyRoute above) if reached another way.
+// About stays reachable via SiteFooter, just not in the persistent nav —
+// logged-out visitors should see only "Login" here, and logged-in users
+// don't need a marketing page in their working nav at all.
 export const marketingNavItems: NavItem[] = [
-  { label: "About", path: ROUTES.about, guestOnly: true },
+  { label: "Login", path: ROUTES.login, guestOnly: true },
 ];

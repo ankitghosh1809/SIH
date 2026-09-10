@@ -6,8 +6,8 @@ export interface NavItem {
   label: string;
   path: string;
   icon?: ComponentType<SVGProps<SVGSVGElement>>;
-  roles?: UserRole[]; // omit = visible to everyone, including logged-out visitors
-  guestOnly?: boolean; // true = only shown to logged-out visitors; hidden once a user is signed in
+  roles?: UserRole[]; // omit = visible to any logged-in user, regardless of role
+  guestOnly?: boolean; // true = visible only to logged-out visitors (e.g. "Login")
 }
 
 export const ROUTES = {
