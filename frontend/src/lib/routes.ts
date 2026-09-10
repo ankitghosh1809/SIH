@@ -13,6 +13,7 @@ export const ROUTES = {
   home: "/",
   about: "/about",
   privacy: "/privacy",
+  musicHeroShowcase: "/showcase/music-hero",
   login: "/login",
   register: "/register",
   upload: "/upload",
