@@ -1,4 +1,4 @@
-import { LogOut, Menu, ShieldCheck, User } from "lucide-react";
+import { LogOut, Menu, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,15 +29,34 @@ function initials(name: string) {
   );
 }
 
+/** Small geometric scan/eye mark, echoing RetinaScanIllustration's visual
+ * language, in place of a generic shield icon. currentColor so it picks
+ * up whatever text color it's placed in. */
+function LogoMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.6" opacity="0.35" />
+      <path
+        d="M12 3a9 9 0 0 1 9 9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="12" r="3.25" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function Header({ onToggleMobileNav }: HeaderProps) {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 sm:px-6">
+    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-ink-border bg-ink px-4 sm:px-6">
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden"
+        className="text-ink-foreground hover:bg-white/10 hover:text-ink-foreground md:hidden"
         onClick={onToggleMobileNav}
         aria-label="Open menu"
       >
@@ -46,9 +65,9 @@ export function Header({ onToggleMobileNav }: HeaderProps) {
 
       <Link
         to={ROUTES.home}
-        className="flex items-center gap-2 rounded-md text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex items-center gap-2 rounded-md text-sm font-semibold text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-accent"
       >
-        <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
+        <LogoMark className="size-5 text-ink-accent" />
         <span>SIH26139 Screening</span>
       </Link>
 
@@ -56,9 +75,12 @@ export function Header({ onToggleMobileNav }: HeaderProps) {
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-2 px-2">
+              <Button
+                variant="ghost"
+                className="gap-2 px-2 text-ink-foreground hover:bg-white/10 hover:text-ink-foreground"
+              >
                 <Avatar className="size-7">
-                  <AvatarFallback className="text-xs">
+                  <AvatarFallback className="bg-ink-accent/15 text-xs text-ink-accent">
                     {initials(user.full_name ?? user.username)}
                   </AvatarFallback>
                 </Avatar>
@@ -80,7 +102,7 @@ export function Header({ onToggleMobileNav }: HeaderProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="bg-ink-accent text-ink hover:bg-ink-accent-bright">
             <Link to={ROUTES.login}>
               <User className="size-4" aria-hidden="true" />
               Log in
