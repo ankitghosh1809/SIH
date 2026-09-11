@@ -35,8 +35,8 @@ function NavList({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => v
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-ink-muted transition-colors hover:bg-white/8 hover:text-ink-foreground",
-              isActive && "bg-ink-accent/12 text-ink-accent hover:bg-ink-accent/15 hover:text-ink-accent"
+              "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
+              isActive && "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
             )
           }
         >
@@ -53,11 +53,11 @@ export function Sidebar({ navItems, mobileOpen, onMobileOpenChange }: SidebarPro
 
   return (
     <>
-      {/* Desktop: persistent column. Deliberately dark, matching Header
-          and the marketing pages, so the brand has one consistent dark
-          identity wherever it's chrome rather than content — the actual
-          working area (main) stays light for legibility. */}
-      <aside className="hidden w-60 shrink-0 border-r border-ink-border bg-ink md:flex md:flex-col">
+      {/* Desktop: persistent column. Shares the canvas background with the
+          main content area — separated only by a hairline border, same as
+          Header — so chrome and content read as one calm surface instead
+          of a boxed-in nav panel. */}
+      <aside className="hidden w-60 shrink-0 border-r border-border bg-background md:flex md:flex-col">
         <NavList items={visibleItems} />
       </aside>
 
@@ -71,13 +71,13 @@ export function Sidebar({ navItems, mobileOpen, onMobileOpenChange }: SidebarPro
           <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 md:hidden" />
           <DialogPrimitive.Content
             aria-describedby={undefined}
-            className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[80vw] flex-col border-r border-ink-border bg-ink shadow-lg outline-none md:hidden"
+            className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[80vw] flex-col border-r border-border bg-background shadow-soft-lg outline-none md:hidden"
           >
-            <div className="flex items-center justify-between border-b border-ink-border p-3">
-              <DialogPrimitive.Title className="text-sm font-semibold text-ink-foreground">
+            <div className="flex items-center justify-between border-b border-border p-3">
+              <DialogPrimitive.Title className="text-sm font-semibold text-foreground">
                 Menu
               </DialogPrimitive.Title>
-              <DialogPrimitive.Close className="rounded-md p-1.5 text-ink-muted hover:bg-white/8 hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-accent">
+              <DialogPrimitive.Close className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                 <XIcon className="size-4" aria-hidden="true" />
                 <span className="sr-only">Close menu</span>
               </DialogPrimitive.Close>

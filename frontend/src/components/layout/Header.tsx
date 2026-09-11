@@ -52,11 +52,11 @@ export function Header({ onToggleMobileNav }: HeaderProps) {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-ink-border bg-ink px-4 sm:px-6">
+    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 sm:px-6">
       <Button
         variant="ghost"
         size="icon"
-        className="text-ink-foreground hover:bg-white/10 hover:text-ink-foreground md:hidden"
+        className="text-foreground hover:bg-secondary hover:text-foreground md:hidden"
         onClick={onToggleMobileNav}
         aria-label="Open menu"
       >
@@ -65,9 +65,9 @@ export function Header({ onToggleMobileNav }: HeaderProps) {
 
       <Link
         to={ROUTES.home}
-        className="flex items-center gap-2 rounded-md text-sm font-semibold text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-accent"
+        className="flex items-center gap-2 rounded-md text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
-        <LogoMark className="size-5 text-ink-accent" />
+        <LogoMark className="size-5 text-primary" />
         <span>SIH26139 Screening</span>
       </Link>
 
@@ -77,10 +77,10 @@ export function Header({ onToggleMobileNav }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="gap-2 px-2 text-ink-foreground hover:bg-white/10 hover:text-ink-foreground"
+                className="gap-2 px-2 text-foreground hover:bg-secondary hover:text-foreground"
               >
                 <Avatar className="size-7">
-                  <AvatarFallback className="bg-ink-accent/15 text-xs text-ink-accent">
+                  <AvatarFallback className="bg-primary/15 text-xs text-primary">
                     {initials(user.full_name ?? user.username)}
                   </AvatarFallback>
                 </Avatar>
@@ -102,7 +102,7 @@ export function Header({ onToggleMobileNav }: HeaderProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button asChild size="sm" className="bg-ink-accent text-ink hover:bg-ink-accent-bright">
+          <Button asChild size="sm">
             <Link to={ROUTES.login}>
               <User className="size-4" aria-hidden="true" />
               Log in
